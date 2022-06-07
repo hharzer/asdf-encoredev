@@ -27,7 +27,7 @@ Plugin:
 ```shell
 asdf plugin add encore
 # or
-asdf plugin add encore https://github.com/hharzer/asdf-encore.git
+asdf plugin add encore https://github.com/hharzer/asdf-encoredev.git
 ```
 
 encore:
