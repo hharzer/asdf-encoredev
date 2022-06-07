@@ -7,17 +7,28 @@ GH_REPO="https://github.com/encoredev/encore"
 TOOL_NAME="encore"
 TOOL_TEST="encore --help"
 
+case $(uname -sm) in
+	"Darwin x86_64") target="darwin_amd64" ;;
+	"Darwin arm64")  target="darwin_arm64" ;;
+	"Darwin arm64")  target="darwin_arm64" ;;
+	"Linux aarch64") target="linux_arm64"  ;;
+	"Linux arm64")   target="linux_arm64"  ;;
+	*) target="linux_amd64" ;;
+esac
+
+encore_uri=$(curl -sSf -N "https://encore.dev/api/releases?target=${target}&show=url")
+
 fail() {
   echo -e "asdf-$TOOL_NAME: $*"
   exit 1
 }
 
-curl_opts=(-fsSL)
+curl_opts=(-fsSL --progress-bar)
 
 # NOTE: You might want to remove this if encore is not hosted on GitHub releases.
-if [ -n "${GITHUB_API_TOKEN:-}" ]; then
-  curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
-fi
+# if [ -n "${GITHUB_API_TOKEN:-}" ]; then
+#   curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
+# fi
 
 sort_versions() {
   sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
@@ -42,7 +53,7 @@ download_release() {
   filename="$2"
 
   # TODO: Adapt the release URL convention for encore
-  url="$GH_REPO/archive/v${version}.tar.gz"
+  url="$encore_uri"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
